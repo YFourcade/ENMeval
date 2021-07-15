@@ -79,8 +79,8 @@ tune.validate <- function(enm, occs.train.z, occs.val.z, bg.train.z, bg.val.z, m
     
     # custom evaluations
     tr <- dismo::threshold(e.val, "spec_sens")
-    # e.val.tr <- dismo::evaluate(occs.val.pred, c(bg.train.pred, bg.val.pred), th = tr)
-    # tss <- e.val.tr@confusion[1]/length(e.val.tr@presence) + e.val.tr@confusion[4]/length(e.val.tr@absence) - 1
+    e.val.tr <- dismo::evaluate(occs.val.pred, c(bg.train.pred, bg.val.pred), th = tr)
+    tss <- e.val.tr@confusion[1]/length(e.val.tr@presence) + e.val.tr@confusion[4]/length(e.val.tr@absence) - 1
 
     # calculate CBI based on the full background (do not calculate for jackknife partitions)
     if(partitions != "jackknife") {
@@ -97,6 +97,12 @@ tune.validate <- function(enm, occs.train.z, occs.val.z, bg.train.z, bg.val.z, m
     auc.val <- e.val@auc
     # calculate AUC diff as training AUC minus validation AUC with different backgrounds
     auc.diff <- auc.train - auc.val
+    
+    # custom evaluations
+    tr <- dismo::threshold(e.val, "spec_sens")
+    e.val.tr <- dismo::evaluate(occs.val.pred, bg.train.pred, th = tr)
+    tss <- e.val.tr@confusion[1]/length(e.val.tr@presence) + e.val.tr@confusion[4]/length(e.val.tr@absence) - 1
+
     # calculate CBI based on the validation background only (do not calculate for jackknife partitions)
     if(partitions != "jackknife") {
       cbi.val <- ecospat::ecospat.boyce(c(bg.val.pred, occs.val.pred), occs.val.pred, PEplot = FALSE)$Spearman.cor
@@ -130,7 +136,7 @@ tune.validate <- function(enm, occs.train.z, occs.val.z, bg.train.z, bg.val.z, m
   }
   
   # gather all evaluation statistics for k
-  out.df <- data.frame(auc.val = auc.val, auc.diff = auc.diff, cbi.val = cbi.val, or.mtp = or.mtp, or.10p = or.10p, tr_max_sens_spec = tr)
+  out.df <- data.frame(auc.val = auc.val, auc.diff = auc.diff, cbi.val = cbi.val, or.mtp = or.mtp, or.10p = or.10p, tss = tss, tr_max_sens_spec = tr)
   if(!is.null(user.eval.out)) out.df <- cbind(out.df, user.eval.out)
   
   return(out.df)
