@@ -76,6 +76,12 @@ tune.validate <- function(enm, occs.train.z, occs.val.z, bg.train.z, bg.val.z, m
     auc.val <- e.val@auc
     # calculate AUC diff as training AUC minus validation AUC with a shared background
     auc.diff <- auc.train - auc.val
+    
+    # custom evaluations
+    tr <- dismo::threshold(e.val, "spec_sens")
+    e.val.tr <- dismo::evaluate(occs.val.pred, c(bg.train.pred, bg.val.pred), th = tr)
+    tss <- e.val.tr@confusion[1]/length(e.val.tr@presence) + e.val.tr@confusion[4]/length(e.val.tr@absence) - 1
+
     # calculate CBI based on the full background (do not calculate for jackknife partitions)
     if(partitions != "jackknife") {
       cbi.val <- ecospat::ecospat.boyce(c(bg.train.pred, bg.val.pred, occs.val.pred), occs.val.pred, PEplot = FALSE)$Spearman.cor
