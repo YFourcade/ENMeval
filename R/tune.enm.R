@@ -79,8 +79,7 @@ tune.validate <- function(enm, occs.train.z, occs.val.z, bg.train.z, bg.val.z, m
     
     # custom evaluations
     tr <- dismo::threshold(e.val, "spec_sens")
-    e.val.tr <- dismo::evaluate(occs.val.pred, c(bg.train.pred, bg.val.pred), th = tr)
-    tss <- e.val.tr@confusion[1]/length(e.val.tr@presence) + e.val.tr@confusion[4]/length(e.val.tr@absence) - 1
+    tss <- e.val@confusion[which(e.val@t == tr),][1]/length(e.val@presence) + e.val@confusion[which(e.val@t == tr),][4]/length(e.val@absence) - 1 
 
     # calculate CBI based on the full background (do not calculate for jackknife partitions)
     if(partitions != "jackknife") {
@@ -100,8 +99,7 @@ tune.validate <- function(enm, occs.train.z, occs.val.z, bg.train.z, bg.val.z, m
     
     # custom evaluations
     tr <- dismo::threshold(e.val, "spec_sens")
-    e.val.tr <- dismo::evaluate(occs.val.pred, bg.train.pred, th = tr)
-    tss <- e.val.tr@confusion[1]/length(e.val.tr@presence) + e.val.tr@confusion[4]/length(e.val.tr@absence) - 1
+    tss <- e.val@confusion[which(e.val@t == tr),][1]/length(e.val@presence) + e.val@confusion[which(e.val@t == tr),][4]/length(e.val@absence) - 1 
 
     # calculate CBI based on the validation background only (do not calculate for jackknife partitions)
     if(partitions != "jackknife") {
